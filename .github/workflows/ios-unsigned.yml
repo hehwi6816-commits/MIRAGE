@@ -1,0 +1,86 @@
+name: Build unsigned IPA
+
+on:
+
+  workflow_dispatch:
+  
+  push:
+  
+    branches: [main]
+    
+permissions:
+
+  contents: read
+  
+jobs:
+
+  build:
+  
+    runs-on: macos-26
+    
+    timeout-minutes: 40
+    
+    steps:
+    
+      - uses: actions/checkout@v4
+      
+      - name: Extract source
+      
+        run: unzip -q MIRAGE-source.zip -d source
+        
+      - name: Build unsigned app
+      
+        working-directory: source
+        
+        run: |
+        
+          set -euo pipefail
+          
+          xcodebuild -project MIRAGE.xcodeproj -scheme MIRAGE -configuration Release -sdk iphoneos -derivedDataPath build/DerivedData CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO build
+          
+          APP=$(find build/DerivedData/Build/Products/Release-iphoneos -maxdepth 1 -name '*.app' -type d | head -1)
+          
+          test -n "$APP"
+          
+          rm -rf build/Payload build/MIRAGE-unsigned.ipa
+          
+          mkdir -p build/Payload
+          
+          cp -R "$APP" build/Payload/
+          
+          (cd build && zip -qr MIRAGE-unsigned.ipa Payload)
+          
+      - uses: actions/upload-artifact@v4
+      
+        with:
+        
+          name: MIRAGE-unsigned-ipa
+          
+          path: source/build/MIRAGE-unsigned.ipa
+          
+          retention-days: 14
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
