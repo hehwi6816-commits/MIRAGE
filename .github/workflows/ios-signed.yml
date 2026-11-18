@@ -22,7 +22,7 @@ jobs:
 
   build:
   
-    runs-on: macos-26
+    runs-on: macos-14
     
     timeout-minutes: 40
     
@@ -64,10 +64,14 @@ jobs:
           
           KEYCHAIN_PATH="$RUNNER_TEMP/build.keychain-db"
           
+
+
           printf '%s' "$BUILD_CERTIFICATE_BASE64" | base64 --decode > "$CERTIFICATE_PATH"
           
           printf '%s' "$PROVISIONING_PROFILE_BASE64" | base64 --decode > "$PROFILE_PATH"
           
+
+
           security create-keychain -p "" "$KEYCHAIN_PATH"
           
           security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
@@ -80,6 +84,8 @@ jobs:
           
           security default-keychain -s "$KEYCHAIN_PATH"
           
+
+
           mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
           
           security cms -D -i "$PROFILE_PATH" > "$RUNNER_TEMP/profile.plist"
@@ -90,9 +96,13 @@ jobs:
           
           cp "$PROFILE_PATH" "$HOME/Library/MobileDevice/Provisioning Profiles/$PROFILE_UUID.mobileprovision"
           
-          echo "PROFILE_UUID=$PROFILE_UUID" >> "$GITHUB_ENV"
+          {
           
-          echo "PROFILE_NAME=$PROFILE_NAME" >> "$GITHUB_ENV"
+            echo "PROFILE_UUID=$PROFILE_UUID"
+            
+            echo "PROFILE_NAME=$PROFILE_NAME"
+            
+          } >> "$GITHUB_ENV"
           
 
 
@@ -140,6 +150,8 @@ jobs:
             
             CODE_SIGN_IDENTITY='iPhone Distribution'
             
+
+
           cat > "$RUNNER_TEMP/ExportOptions.plist" <<PLIST
           
           <?xml version="1.0" encoding="UTF-8"?>
@@ -166,27 +178,17 @@ jobs:
           
           PLIST
           
-          xcodebuild -exportArchive -archivePath build/MIRAGE.xcarchive -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" -exportPath build/ipa
-          
-          cp build/ipa/*.ipa build/MIRAGE.ipa
-          
 
 
-      - name: Upload IPA artifact
-      
-        uses: actions/upload-artifact@v4
-        
-        with:
-        
-          name: MIRAGE-ipa
+          xcodebuild -exportArchive \
           
-          path: build/MIRAGE.ipa
-          
-          if-no-files-found: error
-          
-          retention-days: 14
-
-
+            -archivePath build/MIRAGE.xcarchive \
+            
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" \
+            
+            -exportPath build/ipa
+            
+  
 
 
 
