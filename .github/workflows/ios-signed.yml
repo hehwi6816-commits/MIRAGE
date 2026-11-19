@@ -17,6 +17,7 @@ jobs:
   build:
   
     runs-on: macos-15
+    
     timeout-minutes: 40
     
     steps:
@@ -31,8 +32,10 @@ jobs:
         
       - name: Apply Xcode 26 compatibility fix
       
-        run: sed -i '' '90c\        for _ in 0..<asset.count { parent.addChildNode(SCNNode()) }' MIRAGE/Game/World.swift
+        run: >-
         
+          python3 -c "from pathlib import Path; p=Path('MIRAGE/Game/World.swift'); s=p.read_text(); p.write_text(s.replace('for i in 0..<asset.count { parent.addChildNode(SCNNode(mdlObject: asset.object(at: i))) }','for _ in 0..<asset.count { parent.addChildNode(SCNNode()) }'))"
+          
       - name: Select Xcode
       
         uses: maxim-lobanov/setup-xcode@v1
@@ -111,9 +114,8 @@ jobs:
           
           cat > "$RUNNER_TEMP/ExportOptions.plist" <<PLIST
           
-          <?xml version="1.0" encoding="UTF-8"?>
-          
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple
+        
+
 
 
 
