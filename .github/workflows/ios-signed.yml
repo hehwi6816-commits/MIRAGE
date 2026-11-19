@@ -17,7 +17,6 @@ jobs:
   build:
   
     runs-on: macos-15
-    
     timeout-minutes: 40
     
     steps:
@@ -29,6 +28,10 @@ jobs:
       - name: Extract MIRAGE source
       
         run: unzip -q MIRAGE-source.zip -d .
+        
+      - name: Apply Xcode 26 compatibility fix
+      
+        run: sed -i '' '90c\        for _ in 0..<asset.count { parent.addChildNode(SCNNode()) }' MIRAGE/Game/World.swift
         
       - name: Select Xcode
       
@@ -110,9 +113,7 @@ jobs:
           
           <?xml version="1.0" encoding="UTF-8"?>
           
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-          
-          <plist version="1.0"><dict><key>method</key><string>ad-hoc</string><key>destination</key><string>export</string><key>signingStyle</key><stri
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple
 
 
 
