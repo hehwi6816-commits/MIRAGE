@@ -10,14 +10,10 @@ on:
   
     branches: [main]
     
-
-
 permissions:
 
   contents: read
   
-
-
 jobs:
 
   build:
@@ -32,8 +28,10 @@ jobs:
       
         uses: actions/checkout@v4
         
-
-
+      - name: Extract MIRAGE source
+      
+        run: unzip -q MIRAGE-source.zip -d .
+        
       - name: Select Xcode
       
         uses: maxim-lobanov/setup-xcode@v1
@@ -42,8 +40,6 @@ jobs:
         
           xcode-version: latest-stable
           
-
-
       - name: Install signing certificate and provisioning profile
       
         env:
@@ -90,26 +86,16 @@ jobs:
           
           cp "$PROFILE_PATH" "$HOME/Library/MobileDevice/Provisioning Profiles/$PROFILE_UUID.mobileprovision"
           
-          echo "PROFILE_UUID=$PROFILE_UUID" >> "$GITHUB_ENV"
-          
           echo "PROFILE_NAME=$PROFILE_NAME" >> "$GITHUB_ENV"
           
-
-
       - name: Build and test on iOS Simulator
       
         run: |
         
           set -euo pipefail
           
-          xcodebuild -project MIRAGE.xcodeproj -scheme MIRAGE -configuration Debug \
+          xcodebuild -project MIRAGE.xcodeproj -scheme MIRAGE -configuration Debug -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO test
           
-            -destination 'generic/platform=iOS Simulator' \
-            
-            CODE_SIGNING_ALLOWED=NO test
-            
-
-
       - name: Archive and export signed IPA
       
         env:
@@ -124,32 +110,19 @@ jobs:
           
           rm -rf build
           
-          xcodebuild -project MIRAGE.xcodeproj -scheme MIRAGE -configuration Release \
+          xcodebuild -project MIRAGE.xcodeproj -scheme MIRAGE -configuration Release -destination 'generic/platform=iOS' -archivePath build/MIRAGE.xcarchive archive CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM="$TEAM_ID" PRODUCT_BUNDLE_IDENTIFIER="$BUNDLE_ID" PROVISIONING_PROFILE_SPECIFIER="$PROFILE_NAME" CODE_SIGN_IDENTITY='iPhone Distribution'
           
-            -destination 'generic/platform=iOS' \
-            
-            -archivePath build/MIRAGE.xcarchive archive \
-            
-            CODE_SIGN_STYLE=Manual \
-            
-            DEVELOPMENT_TEAM="$TEAM_ID" \
-            
-            PRODUCT_BUNDLE_IDENTIFIER="$BUNDLE_ID" \
-            
-            PROVISIONING_PROFILE_SPECIFIER="$PROFILE_NAME" \
-            
-            CODE_SIGN_IDENTITY='iPhone Distribution'
-            
           cat > "$RUNNER_TEMP/ExportOptions.plist" <<PLIST
           
           <?xml version="1.0" encoding="UTF-8"?>
           
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/Proper
-
-
-
-
-
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          
+          <plist version="1.0"><dict><key>method</key><string>ad-hoc</string><key>destination</key><string>export</string><key>signingStyle</key><string>manual</string><key>teamID</key><string>$TEAM_ID</string><key>provisioningProfiles</key><dict><key>$BUNDLE_ID</key><string>$PROFILE_NAME</string></dict></dict></plist>
+          
+          PLIST
+          
+          xcodebuild -exportArchive -ar
 
 
 
