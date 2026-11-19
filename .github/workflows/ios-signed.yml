@@ -22,7 +22,7 @@ jobs:
 
   build:
   
-    runs-on: macos-13
+    runs-on: macos-15
     
     timeout-minutes: 40
     
@@ -144,40 +144,7 @@ jobs:
           
           <?xml version="1.0" encoding="UTF-8"?>
           
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-          
-          <plist version="1.0"><dict>
-          
-          <key>method</key><string>ad-hoc</string>
-          
-          <key>destination</key><string>export</string>
-          
-          <key>signingStyle</key><string>manual</string>
-          
-          <key>teamID</key><string>$TEAM_ID</string>
-          
-          <key>provisioningProfiles</key><dict>
-          
-          <key>$BUNDLE_ID</key><string>$PROFILE_NAME</string>
-          
-          </dict>
-          
-          </dict></plist>
-          
-          PLIST
-          
-          xcodebuild -exportArchive -archivePath build/MIRAGE.xcarchive -exportOptionsPlist "$RUNNER_TEMP/Expor
-
-
-
-
-
-
-
-
-
-
-
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/Proper
 
 
 
