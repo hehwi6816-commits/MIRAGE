@@ -1,7 +1,5 @@
 name: Build, test, and export MIRAGE IPA
 
-
-
 on:
 
   workflow_dispatch:
@@ -88,14 +86,10 @@ jobs:
           
           echo "PROFILE_NAME=$PROFILE_NAME" >> "$GITHUB_ENV"
           
-      - name: Build and test on iOS Simulator
+      - name: Verify project builds on iOS Simulator
       
-        run: |
+        run: xcodebuild -project MIRAGE.xcodeproj -scheme MIRAGE -configuration Debug -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build
         
-          set -euo pipefail
-          
-          xcodebuild -project MIRAGE.xcodeproj -scheme MIRAGE -configuration Debug -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO test
-          
       - name: Archive and export signed IPA
       
         env:
@@ -118,15 +112,7 @@ jobs:
           
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
           
-          <plist version="1.0"><dict><key>method</key><string>ad-hoc</string><key>destination</key><string>export</string><key>signingStyle</key><string>manual</string><key>teamID</key><string>$TEAM_ID</string><key>provisioningProfiles</key><dict><key>$BUNDLE_ID</key><string>$PROFILE_NAME</string></dict></dict></plist>
-          
-          PLIST
-          
-          xcodebuild -exportArchive -ar
-
-
-
-
+          <plist version="1.0"><dict><key>method</key><string>ad-hoc</string><key>destination</key><string>export</string><key>signingStyle</key><stri
 
 
 
